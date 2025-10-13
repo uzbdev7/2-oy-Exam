@@ -1,6 +1,6 @@
 import express from "express"
 import dotenv from "dotenv";
-import UserRouter from "./routes/userRoutes";
+import mainRouter from "./routes/main.routes.js"
 
 dotenv.config();
 
@@ -8,8 +8,8 @@ const app = express()
 app.use(express.json())
 
 const PORT = process.env.PORT || 5000;
-app.use("/users",UserRouter)
 
-app.listen(PORT, () => {
-  console.log(`✅ Server ${PORT}-portda ishlayapti`);
-});
+app.use("/", mainRouter);
+
+
+app.listen(PORT, () => {console.log(`✅ Server ${PORT}-portda ishlayapti`);});
