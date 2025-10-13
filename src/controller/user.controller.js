@@ -2,6 +2,7 @@ import pool from "../config/pool.js";
 import * as bcrypt from "bcrypt";
 
 const createUser = async (req, res, next) => {
+
   try {
     const { name, email, password } = req.body;
 
@@ -12,7 +13,7 @@ const createUser = async (req, res, next) => {
       [name, email, hashedPassword]
     );
 
-    return res.status(201).send(rows[0]);
+    return res.status(201).json({message:"User yaratildi."});
   } catch (error) {
     console.log("Xatolik:", error);
     next(error);

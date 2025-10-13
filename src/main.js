@@ -11,5 +11,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use("/", mainRouter);
 
+app.use((err, req, res, next) =>{
+    console.log("Error handler:",err.message);
+    res.status(500).send({message:"Serverda xatolik."})
+})
 
 app.listen(PORT, () => {console.log(`✅ Server ${PORT}-portda ishlayapti`);});
