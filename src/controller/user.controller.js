@@ -3,7 +3,6 @@ import * as bcrypt from "bcrypt";
 
 const createUser = async (req, res, next) => {
   try {
-
     const { name, email, password } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -14,36 +13,36 @@ const createUser = async (req, res, next) => {
     );
 
     return res.status(201).send(rows[0]);
-
   } catch (error) {
     console.log("Xatolik:", error);
-    next(error)
+    next(error);
   }
 };
 
 const getAll = async (req, res, next) => {
-
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
 
-      const offset = (page - 1) * limit;
+    const totalResult = await pool.query(`SELECT COUNT(*) FROM users;`);
+    const total = parseInt(totalResult.rows[0].count);
+    const len = totalResult.length;
 
-      const totalResult = await pool.query(`SELECT COUNT(*) FROM users;`);
-      const total = parseInt(totalResult.rows[0].count);
-      const len = totalResult.length
+    const result = await pool.query(`SELECT * FROM users LIMIT $1 OFFSET $2;`, [
+      limit,
+      offset,
+    ]);
 
-      const result = await pool.query(`SELECT * FROM users LIMIT $1 OFFSET $2;`, [limit, offset]);
-
-      res.status(200).json({
+    res.status(200).json({
       page,
       limit,
-      total : len,
+      total: len,
       totalPages: Math.ceil(total / limit),
-      data: result.rows
-  })
-  }catch (error) {
+      data: result.rows,
+    });
+  } catch (error) {
     console.error(error);
     next(error);
   }
@@ -93,12 +92,11 @@ const UserUpdate = async (req, res, next) => {
     const { id } = req.params;
 
     const UserCheck = await pool.query(`SELECT * FROM users WHERE id=$1;`, [
-      id
+      id,
     ]);
 
     if (UserCheck.rows.length === 0)
       return res.status(404).send({ message: "User topilmadi." });
-
 
     for (const [key, value] of Object.entries(req.body)) {
       fields.push(`${key} = $${idx}`);
@@ -128,50 +126,49 @@ const UserUpdate = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-try{
-  
-      const { id } = req.params
-      
-      const result = await pool.query(" DELETE FROM users WHERE id = $1 RETURNING *;",[id]);
+    const result = await pool.query(
+      " DELETE FROM users WHERE id = $1 RETURNING *;",
+      [id]
+    );
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
-      }
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+    }
 
-      res.status(200).json({
+    res.status(200).json({
       message: "Foydalanuvchi o'chirildi",
-      user: result.rows[0]
-      });
-
-
-  }catch(error){
-    console.log("Xatolik:",error);
+      user: result.rows[0],
+    });
+  } catch (error) {
+    console.log("Xatolik:", error);
     next(error);
   }
-}
+};
 
-const searchUser = async(req, res, next) => {
+const searchUser = async (req, res, next) => {
+  try {
+    const search = req.query.search;
 
-  try{
-    
-    const  search = req.query.search
-    
-  if(!search) {
-    return res.status(400).send({message:"Qidiruv so'zi kiritilmadi."})
+    if (!search) {
+      return res.status(400).send({ message: "Qidiruv so'zi kiritilmadi." });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM users WHERE name ILIKE $1 OR email ILIKE $1 OR password ILIKE $1;`,
+      [`%${search}%`]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Hech qanday user topilmadi" });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.log("Xatolik:", err);
+    next(err);
   }
-
-  const result = await pool.query(`SELECT * FROM users WHERE name ILIKE $1 OR email ILIKE $1 OR password ILIKE $1;`,[`%${search}%`]);
-
-  if (result.rows.length === 0) {
-    return res.status(404).json({ message: "Hech qanday user topilmadi" });
-  }
-  
-  res.status(200).json(result.rows);
-
-  }catch(err){
-    console.log("Xatolik:",err);
-    next(err)
-  }
-}
+};
 export { createUser, getAll, login, UserUpdate, deleteUser, searchUser };
