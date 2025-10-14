@@ -2,6 +2,7 @@ import pkg from "pg";
 import dotenv from "dotenv";
 const { Pool } = pkg;
 
+
 dotenv.config({path:".env.example"});
 const pool = new Pool({
   host: process.env.PGHOST,
