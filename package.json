@@ -4,6 +4,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "joi": "^18.0.1",
+    "nodemon": "^3.1.10",
     "pg": "^8.16.3"
   },
   "name": "29-dars",
@@ -11,10 +12,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node main.js",
-    "dev": "nodemon server.js"
+    "start": "node src/main.js",
+    "dev": "nodemon src/main.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module"
 }
