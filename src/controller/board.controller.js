@@ -137,3 +137,4 @@ export const searchBoard = async (req, res, next) => {
     next(err);
   }
 };
+
