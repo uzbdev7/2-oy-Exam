@@ -69,13 +69,19 @@ const UpdateColumns = async (req, res, next) => {
 
     values.push(id);
 
-    const result = await pool.query(`SELECT * FROM columns;`);
-    res.status(200).send({ "Xamma ustunlar": result.rows[0] });
+    const result = await pool.query(`UPDATE columns SET ${fields.join(", ")} WHERE id = $${idx} RETURNING *;`, values);
+
+    res.json({
+      message: "Muvafaqqiyatli yangilandi.",
+      data: result.rows[0],
+    });
+
   } catch (err) {
     console.log("Xatolik:", err);
     next(err);
   }
 };
+
 const deleteColumn = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -90,8 +96,7 @@ const deleteColumn = async (req, res, next) => {
     }
 
     res.status(200).json({
-      message: "Column o'chirildi",
-      user: result.rows[0],
+      message: "Ma'lumot o'chirildi"
     });
   } catch (error) {
     console.log("Xatolik:", error);

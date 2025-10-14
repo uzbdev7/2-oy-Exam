@@ -78,9 +78,10 @@ export const updateBoard = async (req, res, next) => {
       values
     );
     res.send({
-      message: "boarddagi malumotlar yangilandi.",
+      message: "Muvafaqqiyatli yangilandi.",
       board: updatedBoard.rows[0],
     });
+
   } catch (err) {
     console.log("Xatolik:", err);
     next(err);
@@ -99,12 +100,12 @@ export const deleteBoard = async (req, res, next) => {
       return res.status(404).json({ message: "Ma'lumot topilmadi." });
     }
 
-    const deleted = await pool.query(`DELETE FROM boards WHERE id = $1 RETURNING *`, [id]);
+    const {rows} = await pool.query(`DELETE FROM boards WHERE id = $1;`, [id]);
 
     res.status(200).json({
-      message: "board dagi ma'lumot o'chirildi",
-      board: deleted.rows[0],
+      message: "Muvafaqqiyatli o'chirildi"
     });
+
   } catch (err) {
     console.log(err);
     next(err);
@@ -120,7 +121,7 @@ export const searchBoard = async (req, res, next) => {
     }
 
     const result = await pool.query(
-      `SELECT * FROM boards WHERE title ILIKE $1 OR user_id ::text ILIKE $1;`,
+      `SELECT * FROM boards WHERE id::text ILIKE $1 OR title ILIKE $1 OR user_id ::text ILIKE $1;`,
       [`%${search}%`]
     );
 
@@ -129,6 +130,7 @@ export const searchBoard = async (req, res, next) => {
         .status(404)
         .send({ message: "Xech qanday ma'lumot topilmadi." });
     }
+    
     res.status(200).json(result.rows);
   } catch (err) {
     console.log("Xatolik: ", err);

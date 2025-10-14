@@ -21,6 +21,7 @@ const createUser = async (req, res, next) => {
 };
 
 const getAll = async (req, res, next) => {
+
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -50,6 +51,7 @@ const getAll = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+
   try {
     const { email, password } = req.body;
 
@@ -78,6 +80,7 @@ const login = async (req, res, next) => {
         email: foundedUser.rows[0].email,
       },
     });
+
   } catch (error) {
     console.log("Xatolik:", error);
     next(error);
@@ -85,6 +88,7 @@ const login = async (req, res, next) => {
 };
 
 const UserUpdate = async (req, res, next) => {
+
   try {
     const fields = [];
     const values = [];
@@ -127,6 +131,7 @@ const UserUpdate = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
+
   try {
     const { id } = req.params;
 
@@ -140,9 +145,9 @@ const deleteUser = async (req, res, next) => {
     }
 
     res.status(200).json({
-      message: "Foydalanuvchi o'chirildi",
-      user: result.rows[0],
+      message: "Foydalanuvchi o'chirildi"
     });
+    
   } catch (error) {
     console.log("Xatolik:", error);
     next(error);
@@ -158,7 +163,7 @@ const searchUser = async (req, res, next) => {
     }
 
     const result = await pool.query(
-      `SELECT * FROM users WHERE name ILIKE $1 OR email ILIKE $1 OR password ILIKE $1;`,
+      `SELECT * FROM users WHERE id::text ILIKE $1 OR name ILIKE $1 OR email ILIKE $1 OR password ILIKE $1;`,
       [`%${search}%`]
     );
 
