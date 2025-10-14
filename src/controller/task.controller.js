@@ -98,8 +98,7 @@ const deleteTasks = async (req, res, next) => {
     }
 
     res.status(200).json({
-      message: "Task o'chirildi",
-      user: result.rows,
+      message: "Task o'chirildi"
     });
   } catch (error) {
     console.log("Xatolik:", error);
