@@ -16,3 +16,4 @@ export const schemaUpdate = Joi.object({
         .message("board_id noto'g'ri UUID formatda kiritilgan")
         .optional()
 })
+

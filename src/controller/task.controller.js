@@ -14,6 +14,7 @@ const createTasks = async (req, res, next) => {
   }
 };
 
+
 const getAllTasks = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;

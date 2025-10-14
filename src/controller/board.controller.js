@@ -9,6 +9,7 @@ export const createBoard = async (req, res, next) => {
       user_id,
     ]);
 
+    
     console.log("Board yaratildi:", title);
     return res.status(201).send({ message: "board yaratildi." });
   } catch (err) {

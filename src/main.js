@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use("/", mainRouter);
 
-// Bu yerda har qanday hatoni tutib olamiz.
+// Bu yerda har qanday hatoni tutib oladi.
 app.use((err, req, res, next) => {
   console.error("Error handler:", err.message);
 

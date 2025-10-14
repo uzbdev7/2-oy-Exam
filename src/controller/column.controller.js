@@ -95,6 +95,7 @@ const deleteColumn = async (req, res, next) => {
       return res.status(404).json({ message: "column topilmadi" });
     }
 
+    
     res.status(200).json({
       message: "Ma'lumot o'chirildi"
     });
