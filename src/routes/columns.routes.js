@@ -17,3 +17,4 @@ router.put("/:id", validate(schemaUpdate, "body"), UpdateColumns);
 router.delete("/:id", deleteColumn);
 
 export default router;
+

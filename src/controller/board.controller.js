@@ -56,6 +56,7 @@ export const getAll = async (req, res, next) => {
   }
 };
 
+
 export const getOneById = async(req,res,next) =>{
 
    try{

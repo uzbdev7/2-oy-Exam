@@ -15,6 +15,7 @@ export const boardschemaUpdate = Joi.object({
         .uuid()
         .message("user_id noto'g'ri UUID formatda kiritilgan").optional()
     });
+    
 
 
 

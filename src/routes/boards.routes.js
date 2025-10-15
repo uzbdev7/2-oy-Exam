@@ -16,3 +16,4 @@ router.put("/:id", validate(boardschemaUpdate,"body"), updateBoard);
 router.delete("/:id",deleteBoard)
 
 export default router;
+

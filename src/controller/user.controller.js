@@ -25,6 +25,7 @@ const createUser = async (req, res, next) => {
 };
 
 
+
 const getAll = async (req, res, next) => {
 
   try {
