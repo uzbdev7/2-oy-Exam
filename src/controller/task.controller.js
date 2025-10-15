@@ -40,6 +40,7 @@ const getAllTasks = async (req, res, next) => {
        return res.status(404).json({message:"Ma'lumot topilmadi."})
     }
 
+    
     res.status(200).json({
       page,
       limit,

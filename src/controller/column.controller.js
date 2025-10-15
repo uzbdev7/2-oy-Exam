@@ -106,6 +106,7 @@ const UpdateColumns = async (req, res, next) => {
   }
 };
 
+
 const deleteColumn = async (req, res, next) => {
   try {
     const { id } = req.params;
