@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { createTasks,getAllTasks,UpdateTasks,deleteTasks, searchTask } from "../controller/task.controller.js";
+import { createTasks,getAllTasks,UpdateTasks,deleteTasks, getOneById } from "../controller/task.controller.js";
 import { validate } from "../validations/validation.js";
 import {taskschema, taskschemaUpdate} from "../validations/task.validation.js"
 
 const router = Router();
 
-router.get("/search", searchTask);
+router.get("/:id", getOneById);
 
 router.get("/", getAllTasks);
 
