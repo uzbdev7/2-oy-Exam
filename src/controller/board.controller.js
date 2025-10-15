@@ -22,22 +22,31 @@ export const getAll = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
 
     const offset = (page - 1) * limit;
 
-    const totalResult = await pool.query(`SELECT COUNT(*) FROM boards;`);
+    const totalResult = await pool.query(
+      `SELECT COUNT(*) FROM boards WHERE title ILIKE $1 OR
+       user_id ::text ILIKE $1;`,
+      [`%${search}%`]
+    );
     const total = parseInt(totalResult.rows[0].count);
-    const len = totalResult.length;
 
     const result = await pool.query(
-      `SELECT * FROM boards LIMIT $1 OFFSET $2;`,
-      [limit, offset]
+      `SELECT * FROM boards WHERE title ILIKE $1
+       OR user_id ::text ILIKE $1 LIMIT $2 OFFSET $3;`,
+      [`%${search}%`,limit, offset]
     );
+
+    if(result.rows.length === 0){
+       return res.status(404).json({message:"Ma'lumot topilmadi."})
+    }
 
     res.status(200).json({
       page,
       limit,
-      total: len,
+      total,
       totalPages: Math.ceil(total / limit),
       data: result.rows,
     });
@@ -46,6 +55,24 @@ export const getAll = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getOneById = async(req,res,next) =>{
+
+   try{
+        const {id} = req.params
+
+      const result = await pool.query(`SELECT * FROM boards WHERE id=$1;`,[id])
+
+      if(result.rows.length === 0){
+        res.status(404).json({message:"Bunday board mavjud emas."})
+      }
+
+      res.status(200).json(result.rows)
+
+   }catch(error){
+    next(error)
+   }
+}
 
 export const updateBoard = async (req, res, next) => {
   try {
@@ -84,7 +111,6 @@ export const updateBoard = async (req, res, next) => {
     });
 
   } catch (err) {
-    console.log("Xatolik:", err);
     next(err);
   }
 };
@@ -108,34 +134,6 @@ export const deleteBoard = async (req, res, next) => {
     });
 
   } catch (err) {
-    console.log("Xatolik:",err);
     next(err);
   }
 };
-
-export const searchBoard = async (req, res, next) => {
-  try {
-    const search = req.query.search;
-
-    if (!search) {
-      return res.status(400).send({ message: "Qidiruv so'zi kiritilmadi." });
-    }
-
-    const result = await pool.query(
-      `SELECT * FROM boards WHERE id::text ILIKE $1 OR title ILIKE $1 OR user_id ::text ILIKE $1;`,
-      [`%${search}%`]
-    );
-
-    if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .send({ message: "Xech qanday ma'lumot topilmadi." });
-    }
-    
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.log("Xatolik: ", err);
-    next(err);
-  }
-};
-

@@ -18,30 +18,55 @@ const getAllColumns = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
 
     const offset = (page - 1) * limit;
 
-    const totalResult = await pool.query(`SELECT COUNT(*) FROM boards;`);
+    const totalResult = await pool.query(
+      `SELECT COUNT(*) FROM columns WHERE name ILIKE $1 OR
+       board_id::text ILIKE $1;`,
+      [`%${search}%`]
+    );
     const total = parseInt(totalResult.rows[0].count);
-    const len = totalResult.length;
 
     const result = await pool.query(
-      `SELECT * FROM columns LIMIT $1 OFFSET $2;`,
-      [limit, offset]
+      `SELECT * FROM columns WHERE name ILIKE $1 OR
+       board_id::text ILIKE $1 LIMIT $2 OFFSET $3;`,
+      [`%${search}%`,limit, offset]
     );
+
+      if(result.rows.length === 0){
+       return res.status(404).json({message:"Ma'lumot topilmadi."})
+    }
 
     res.status(200).json({
       page,
       limit,
-      total: len,
+      total,
       totalPages: Math.ceil(total / limit),
       data: result.rows,
     });
   } catch (err) {
-    console.log("Xatolik:", err);
     next(err);
   }
 };
+const getOneById = async(req,res,next) =>{
+
+   try{
+        const {id} = req.params
+
+      const result = await pool.query(`SELECT * FROM columns WHERE id=$1;`,[id])
+
+      if(result.rows.length === 0){
+        res.status(404).json({message:"Bunday column mavjud emas."})
+      }
+
+      res.status(200).json(result.rows)
+
+   }catch(error){
+    next(error)
+   }
+}
 
 const UpdateColumns = async (req, res, next) => {
   try {
@@ -77,7 +102,6 @@ const UpdateColumns = async (req, res, next) => {
     });
 
   } catch (err) {
-    console.log("Xatolik:", err);
     next(err);
   }
 };
@@ -100,41 +124,15 @@ const deleteColumn = async (req, res, next) => {
       message: "Ma'lumot o'chirildi"
     });
   } catch (error) {
-    console.log("Xatolik:", error);
     next(error);
   }
 };
 
-const searchColumn = async (req, res, next) => {
-  try {
-    const search = req.query.search;
-
-    if (!search) {
-      return res.status(400).send({ message: "Qidiruv so'zi kiritilmadi." });
-    }
-
-    const result = await pool.query(
-      `SELECT * FROM columns WHERE id::text ILIKE $1 OR name ILIKE $1 OR board_id::text ILIKE $1;`,
-      [`%${search}%`]
-    );
-
-    if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Hech qanday ma'lumot topilmadi" });
-    }
-
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.log("Xatolik:", err);
-    next(err);
-  }
-};
 
 export {
   createColumn,
   getAllColumns,
   UpdateColumns,
   deleteColumn,
-  searchColumn,
+  getOneById,
 };
