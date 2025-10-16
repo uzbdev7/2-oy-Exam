@@ -32,3 +32,4 @@ CREATE TABLE tasks (
     column_id UUID REFERENCES columns(id) ON DELETE CASCADE
 );
 
+

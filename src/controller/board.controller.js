@@ -110,14 +110,11 @@ export const updateBoard = async (req, res, next) => {
         if (userCheck.rows.length === 0) {
 
           return res.status(400).json({ message: "Bunday user_id mavjud emas." });
-
-        }else{
-
-          fields.push(`${key}=$${idx}`);
+        }  
+    }
+      fields.push(`${key}=$${idx}`);
           values.push(value);
           idx++;
-        }
-    }
   }
 
     if (fields.length === 0) {
