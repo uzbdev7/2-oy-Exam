@@ -8,19 +8,16 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL
 );
 
-
-
 CREATE TABLE boards (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(255) NOT NULL,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE 
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL 
 );
-
 
 CREATE TABLE columns (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
-    board_id UUID REFERENCES boards(id) ON DELETE CASCADE
+    board_id UUID REFERENCES boards(id) ON DELETE SET NULL
 );
 
 CREATE TABLE tasks (
@@ -28,8 +25,6 @@ CREATE TABLE tasks (
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    board_id UUID REFERENCES boards(id) ON DELETE CASCADE,
-    column_id UUID REFERENCES columns(id) ON DELETE CASCADE
+    board_id UUID REFERENCES boards(id) ON DELETE SET NULL,
+    column_id UUID REFERENCES columns(id) ON DELETE SET NULL
 );
-
-
