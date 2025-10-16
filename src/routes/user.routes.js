@@ -12,7 +12,7 @@ router.get("/", getAll);
 router.get("/:id", getOneById);
 
 // CREATE USER.
-router.post("/", validate(userSchema,"body"), createUser);
+router.post("/register", validate(userSchema,"body"), createUser);
 
 // LOGIN USER
 router.post("/login", login);
