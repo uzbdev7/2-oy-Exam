@@ -17,15 +17,16 @@ const createColumn = async (req, res, next) => {
 
     if (columnCheck.rows.length === 0) {
 
-       await pool.query(`INSERT INTO columns(name, board_id) VALUES ($1, $2)`, [
+      const result = await pool.query(`INSERT INTO columns(name, board_id) VALUES ($1, $2) RETURNING *`, [
       name,
       board_id,
     ]);
+        return res.status(201).send({ message: "column yaratildi.", user: result.rows[0]});
     }else {
       return res.status(400).json({ message: "Bu ma'lumot allaqachon mavjud." });
     }
  
-    return res.status(201).send({ message: "column yaratildi." });
+
   } catch (err) {
     console.log("Xatolik:", err);
     next(err);
@@ -54,7 +55,7 @@ const getAllColumns = async (req, res, next) => {
     );
 
       if(result.rows.length === 0){
-       return res.status(404).json({message:"Ma'lumot topilmadi."})
+       return res.status(200).json({message:[]})
     }
 
     res.status(200).json({

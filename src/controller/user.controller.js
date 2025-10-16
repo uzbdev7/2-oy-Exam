@@ -7,12 +7,12 @@ const createUser = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await pool.query(
-      `INSERT INTO users(name, email, password) VALUES($1, $2, $3) RETURNING *;`,
+    const result = await pool.query(
+      `INSERT INTO users(name, email, password) VALUES($1, $2, $3) RETURNING id,name,email;`,
       [name, email, hashedPassword]
     );
 
-    return res.status(201).json({ message: "Siz muvaffaqiyatli ro'yxatdan o'tdingiz." });
+    return res.status(201).json({ message: "Siz muvaffaqiyatli ro'yxatdan o'tdingiz.", user : result.rows[0]});
 
   } catch (error) {
 
@@ -50,7 +50,12 @@ const getAll = async (req, res, next) => {
     );
 
     if(result.rows.length === 0){
-       return res.status(404).json({message:"Ma'lumot topilmadi."})
+       return res.status(200).json({ 
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data:[]})
     }
 
     res.status(200).json({
@@ -60,6 +65,7 @@ const getAll = async (req, res, next) => {
       totalPages: Math.ceil(total / limit),
       data: result.rows,
     });
+
   } catch (error) {
     next(error);
   }

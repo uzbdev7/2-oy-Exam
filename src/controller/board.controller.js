@@ -5,6 +5,7 @@ export const createBoard = async (req, res, next) => {
     const { title, user_id } = req.body;
     
     const userCheck = await pool.query(`SELECT * FROM users WHERE id=$1;`, [user_id]);
+
     if (userCheck.rows.length === 0) {
       return res.status(400).json({ message: "Bunday user_id mavjud emas." });
     }
@@ -13,16 +14,16 @@ export const createBoard = async (req, res, next) => {
 
     if (result.rows.length === 0) {
 
-       await pool.query(`INSERT INTO boards(title, user_id) VALUES ($1, $2)`, [
+      const result = await pool.query(`INSERT INTO boards(title, user_id) VALUES ($1, $2) RETURNING *`, [
       title,
       user_id,
     ]);
+    
+    return res.status(201).send({ message: "board yaratildi.", user : result.rows[0] });
     }else {
       return res.status(400).json({ message: "Bu ma'lumot allaqachon mavjud." });
     }
     
-    console.log("Board yaratildi:");
-    return res.status(201).send({ message: "board yaratildi." });
   } catch (err) {
     console.log("Xato:", err);
     next(err);
@@ -51,7 +52,7 @@ export const getAll = async (req, res, next) => {
     );
 
     if(result.rows.length === 0){
-       return res.status(404).json({message:"Ma'lumot topilmadi."})
+       return res.status(200).json({message:[]})
     }
 
     res.status(200).json({
@@ -147,7 +148,7 @@ export const deleteBoard = async (req, res, next) => {
     ]);
 
     if (boardCheck.rows.length === 0) {
-      return res.status(404).json({ message: "Ma'lumot topilmadi." });
+      return res.status(200).json({ message: []});
     }else{
       await pool.query(`DELETE FROM boards WHERE id = $1;`, [id]);
     }

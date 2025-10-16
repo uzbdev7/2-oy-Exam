@@ -31,9 +31,10 @@ const createTasks = async (req, res, next) => {
       `INSERT INTO tasks (title, description, user_id, board_id, column_id) VALUES($1, $2, $3, $4, $5) RETURNING *;`,
       [title, description, user_id, board_id, column_id]
     );
+      return res.status(201).json({message:"task yaratildi", user:result.rows[0]});
   }
     
-    return res.status(201).send(result.rows[0]);
+
 
   } catch (err) {
     next(err);
@@ -66,7 +67,7 @@ const getAllTasks = async (req, res, next) => {
     ]);
 
      if(result.rows.length === 0){
-       return res.status(404).json({message:"Ma'lumot topilmadi."})
+       return res.status(200).json({message:[]})
     }
 
 
