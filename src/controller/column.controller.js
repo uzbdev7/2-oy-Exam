@@ -110,13 +110,13 @@ const UpdateColumns = async (req, res, next) => {
 
             return res.status(400).json({ message: "Bunday board_id mavjud emas." });
 
-          }else{
+          }
 
+        }
             fields.push(`${key} = $${idx}`);
             values.push(value);
             idx++;
-         }
-      }
+         
     }
   }
 

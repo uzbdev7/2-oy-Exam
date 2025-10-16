@@ -193,4 +193,5 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+
 export { createUser, getAll, login, UserUpdate, deleteUser, getOneById };
