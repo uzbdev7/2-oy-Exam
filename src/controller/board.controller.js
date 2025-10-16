@@ -3,14 +3,25 @@ import pool from "../config/pool.js";
 export const createBoard = async (req, res, next) => {
   try {
     const { title, user_id } = req.body;
+    
+    const userCheck = await pool.query(`SELECT * FROM users WHERE id=$1;`, [user_id]);
+    if (userCheck.rows.length === 0) {
+      return res.status(400).json({ message: "Bunday user_id mavjud emas." });
+    }
 
-    await pool.query(`INSERT INTO boards(title, user_id) VALUES ($1, $2)`, [
+    const result = await pool.query(`SELECT * FROM boards WHERE user_id=$1 AND title=$2;`, [user_id, title]);
+
+    if (result.rows.length === 0) {
+
+       await pool.query(`INSERT INTO boards(title, user_id) VALUES ($1, $2)`, [
       title,
       user_id,
     ]);
-
+    }else {
+      return res.status(400).json({ message: "Bu ma'lumot allaqachon mavjud." });
+    }
     
-    console.log("Board yaratildi:", title);
+    console.log("Board yaratildi:");
     return res.status(201).send({ message: "board yaratildi." });
   } catch (err) {
     console.log("Xato:", err);
@@ -83,21 +94,34 @@ export const updateBoard = async (req, res, next) => {
     let idx = 1;
 
     const boardCheck = await pool.query(`SELECT * FROM boards where id = $1;`, [
-      id,
+      id
     ]);
 
     if (boardCheck.rows.length === 0) {
       return res.status(404).json({ message: "board topilmadi." });
-    }
+    }else{
 
     for (const [key, value] of Object.entries(req.body)) {
-      fields.push(`${key}=$${idx}`);
-      values.push(value);
-      idx++;
+
+      if(key === "user_id" && value !== undefined){
+
+        const userCheck = await pool.query(`SELECT * FROM users WHERE id=$1;`, [value]);
+
+        if (userCheck.rows.length === 0) {
+
+          return res.status(400).json({ message: "Bunday user_id mavjud emas." });
+
+        }else{
+
+          fields.push(`${key}=$${idx}`);
+          values.push(value);
+          idx++;
+        }
     }
+  }
 
     if (fields.length === 0) {
-      return res.status(400).json({ message: "O'zgarish mavjud emas." });
+      return res.status(400).json({ message: "Ma'lumot kiritilmagan." });
     }
 
     values.push(id);
@@ -110,8 +134,9 @@ export const updateBoard = async (req, res, next) => {
       message: "Muvafaqqiyatli yangilandi.",
       board: updatedBoard.rows[0],
     });
+  }
 
-  } catch (err) {
+  }catch(err) {
     next(err);
   }
 };
@@ -126,13 +151,10 @@ export const deleteBoard = async (req, res, next) => {
 
     if (boardCheck.rows.length === 0) {
       return res.status(404).json({ message: "Ma'lumot topilmadi." });
+    }else{
+      await pool.query(`DELETE FROM boards WHERE id = $1;`, [id]);
     }
-
-    const {rows} = await pool.query(`DELETE FROM boards WHERE id = $1;`, [id]);
-
-    res.status(200).json({
-      message: "Muvafaqqiyatli o'chirildi"
-    });
+    res.status(200).json({message: "Muvafaqqiyatli o'chirildi"});
 
   } catch (err) {
     next(err);

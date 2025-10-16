@@ -25,7 +25,6 @@ const createUser = async (req, res, next) => {
 };
 
 
-
 const getAll = async (req, res, next) => {
 
   try {
@@ -156,7 +155,7 @@ const UserUpdate = async (req, res, next) => {
     values.push(id);
 
     const UpdatedUser = await pool.query(
-      `UPDATE users SET ${fields.join(", ")} WHERE id = $${idx} RETURNING *;`,
+      `UPDATE users SET ${fields.join(", ")} WHERE id = $${idx} RETURNING id, name, email;`,
       values
     );
 

@@ -3,11 +3,29 @@ import pool from "../config/pool.js";
 const createColumn = async (req, res, next) => {
   try {
     const { name, board_id } = req.body;
-    const result = await pool.query(
-      `INSERT INTO columns(name, board_id) VALUES($1, $2) RETURNING *;`,
-      [name, board_id]
-    );
-    return res.status(201).send(result.rows[0]);
+
+    const tekshir = await pool.query(`SELECT * FROM boards WHERE id=$1;`, [board_id]);
+
+    if (tekshir.rows.length === 0) {
+      return res.status(404).json({ message: "Bunday board mavjud emas." });
+    }
+    
+    const columnCheck = await pool.query(
+      `SELECT * FROM columns WHERE board_id=$1 AND name=$2;`,
+      [board_id, name]
+    ); 
+
+    if (columnCheck.rows.length === 0) {
+
+       await pool.query(`INSERT INTO columns(name, board_id) VALUES ($1, $2)`, [
+      name,
+      board_id,
+    ]);
+    }else {
+      return res.status(400).json({ message: "Bu ma'lumot allaqachon mavjud." });
+    }
+ 
+    return res.status(201).send({ message: "column yaratildi." });
   } catch (err) {
     console.log("Xatolik:", err);
     next(err);
@@ -79,14 +97,28 @@ const UpdateColumns = async (req, res, next) => {
       id,
     ]);
 
-    if (ColumnCheck.rows.length === 0)
+    if (ColumnCheck.rows.length === 0){
       return res.status(404).send({ message: "columns topilmadi." });
+    }else{
+      for (const [key, value] of Object.entries(req.body)) {
 
-    for (const [key, value] of Object.entries(req.body)) {
-      fields.push(`${key} = $${idx}`);
-      values.push(value);
-      idx++;
+        if(key === "board_id" && value !== undefined){
+
+          const boardCheck = await pool.query(`SELECT * FROM boards WHERE id=$1;`, [value]);  
+
+          if (boardCheck.rows.length === 0) {
+
+            return res.status(400).json({ message: "Bunday board_id mavjud emas." });
+
+          }else{
+
+            fields.push(`${key} = $${idx}`);
+            values.push(value);
+            idx++;
+         }
+      }
     }
+  }
 
     if (fields.length === 0) {
       return res.status(400).json({ message: "O'zgarishlar mavjud emas." });
